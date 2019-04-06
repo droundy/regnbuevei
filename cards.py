@@ -55,22 +55,27 @@ R = np.sqrt(X**2+Y**2)
 phi = np.arctan2(Y,X)
 phi[Y>X] = np.arctan2(X,Y)[Y>X]
 wtl = 1 - R
+wtl = (XX*YY)**2
 
 wtl[wtl<0] = 0
-wtr = wtl[:,::-1]
-wbl = wtl[::-1,:]
-wbr = wtl[::-1,::-1]
+wtr = 1*wtl[:,::-1]
+wbl = 1*wtl[::-1,:]
+wbr = 1*wtl[::-1,::-1]
 
-plt.pcolor(wtl)
-plt.colorbar()
-plt.figure()
+# plt.pcolor(wtl)
+# plt.colorbar()
+# plt.figure()
 
 norm = wtl + wtr + wbl + wbr
 print('big norm', norm[norm>1])
-wtl[norm>1] /= norm[norm>1]
-wtr[norm>1] /= norm[norm>1]
-wbl[norm>1] /= norm[norm>1]
-wbr[norm>1] /= norm[norm>1]
+wtl /= norm
+wtr /= norm
+wbl /= norm
+wbr /= norm
+# wtl[norm>1] /= norm[norm>1]
+# wtr[norm>1] /= norm[norm>1]
+# wbl[norm>1] /= norm[norm>1]
+# wbr[norm>1] /= norm[norm>1]
 
 # wtl[norm<1] += 1-norm[norm<1]
 # wtr[norm<1] += 1-norm[norm<1]
@@ -78,9 +83,9 @@ wbr[norm>1] /= norm[norm>1]
 # wbr[norm<1] += 1-norm[norm<1]
 weights = np.array([[wtl, wtr], [wbl, wbr]])
 
-plt.pcolor(wtl)
-plt.colorbar()
-plt.show()
+# plt.pcolor(wtl)
+# plt.colorbar()
+# plt.show()
 # exit(1)
 
 def bad_corners(s):
