@@ -24,80 +24,112 @@ def rgb_to_lab(x):
 def lab_to_rgb(x):
     return colour.XYZ_to_sRGB(colour.Lab_to_XYZ(x))
 
+spectrum = np.array([[0,0,0],
+                     [0.4,0,0.4],
+                     [0,0,1],
+                     [0,0.5,1],
+                     [0,1,0],
+                     [1,1,0],
+                     [0.975,0.451,0.023],
+                     [1,0,0],
+                     [0,0,0],
+])
+spec_coords = np.array([0,0.1,0.3,0.4,0.5,0.7, 0.8, 0.9, 1])
+print(np.linspace(0.1,0.9,len(spectrum)-2))
+print(len(spectrum), len(spec_coords))
+
+def scalar_to_rgb(z):
+    l = np.interp(z, spec_coords, spectrum[:,0])
+    a = np.interp(z, spec_coords, spectrum[:,1])
+    b = np.interp(z, spec_coords, spectrum[:,2])
+    return np.moveaxis(np.array([l,a,b]), 0, -1)
+
 nx = 3
 ny = 4
 colors = np.zeros((3*ny+2,2*nx+2,3))
 
-# plt.contourf(xx)
-# plt.colorbar()
-# plt.figure()
-# plt.contourf(yy)
-# plt.colorbar()
-# plt.figure()
-#plt.show()
+X, Y = np.meshgrid(np.linspace(0,1,w), np.linspace(0,1,w))
+XX = 1-X
+YY = 1-Y
+R = np.sqrt(X**2+Y**2)
+phi = np.arctan2(Y,X)
+phi[Y>X] = np.arctan2(X,Y)[Y>X]
+wtl = 1 - R
+
+wtl[wtl<0] = 0
+wtr = wtl[:,::-1]
+wbl = wtl[::-1,:]
+wbr = wtl[::-1,::-1]
+
+plt.pcolor(wtl)
+plt.colorbar()
+plt.figure()
+
+norm = wtl + wtr + wbl + wbr
+print('big norm', norm[norm>1])
+wtl[norm>1] /= norm[norm>1]
+wtr[norm>1] /= norm[norm>1]
+wbl[norm>1] /= norm[norm>1]
+wbr[norm>1] /= norm[norm>1]
+
+# wtl[norm<1] += 1-norm[norm<1]
+# wtr[norm<1] += 1-norm[norm<1]
+# wbl[norm<1] += 1-norm[norm<1]
+# wbr[norm<1] += 1-norm[norm<1]
+weights = np.array([[wtl, wtr], [wbl, wbr]])
+
+plt.pcolor(wtl)
+plt.colorbar()
+plt.show()
+# exit(1)
+
+def bad_corners(s):
+    for i in range(s.shape[0]-1):
+        for j in range(s.shape[1]-1):
+            corners = [s[i,j], s[i+1,j], s[i+1,j+1], s[i,j+1]]
+            while corners[0] > corners[1]:
+                corners = [corners[1], corners[2], corners[3], corners[0]]
+            while corners[0] > corners[3]:
+                corners = [corners[3], corners[0], corners[1], corners[2]]
+            mx = 0
+            mn = 0
+            for x in range(4):
+                if corners[x] > corners[mx]:
+                    mx = x
+                if corners[x] < corners[mn]:
+                    mn = x
+            if mn != 0:
+                return True
+            for x in range(mx):
+                if corners[x] > corners[x+1]:
+                    return True
+            for x in range(mx,3):
+                if corners[x] < corners[x+1]:
+                    return True
+    return False # no bad corners
 
 for i in range(20):
-    for icolor in range(colors.shape[0]):
-        for jcolor in range(colors.shape[1]):
-            colors[icolor,jcolor,:] = random.choice((rgb_to_lab([0,0,0]),
-                                                     rgb_to_lab([1,1,1]),
-                                                     rgb_to_lab([1,0,0]),
-                                                     rgb_to_lab([0.082,0.690,0.102]),
-                                                     rgb_to_lab([0,0,1]),
-                                                     rgb_to_lab([1,1,0]),
-                                                     rgb_to_lab([0.975,0.451,0.023]),
-                                                     rgb_to_lab([0.4,0,0.4]),
-                                                     rgb_to_lab([1,0.505,0.753]),
-            ))
+    num_corner_kinds = 5
+    scalars = np.random.choice(np.linspace(0,1,num_corner_kinds), (ny+2,nx+2))
+    while bad_corners(scalars):
+        scalars = np.random.choice(np.linspace(0,1,num_corner_kinds), (ny+2,nx+2))
     for ix in range(nx+1):
         for iy in range(ny+1):
-            X, Y = np.meshgrid(np.linspace(0,1,w), np.linspace(0,1,w))
-            mypow = 1+np.random.random()*4
-            wtop = X**mypow*(1-X)**mypow*(1-Y)
-            wbot = X**mypow*(1-X)**mypow*Y
-            wrig = Y**mypow*(1-Y)**mypow*(1-X)
-            wlef = Y**mypow*(1-Y)**mypow*X
-            xx = (wrig - wlef)/(wrig+wlef+wtop+wbot)
-            yy = (wtop - wbot)/(wrig+wlef+wtop+wbot)
-            phi = np.arctan2(yy,xx)
-            r = np.sqrt(xx**2 + yy**2)
-
-            cbot = colors[2*iy    ,ix  ,:]
-            ctop = colors[2*(iy+1),ix  ,:]
-            crig = colors[2*iy+1  ,ix  ,:]
-            clef = colors[2*iy+1  ,ix+1,:]
-            twist = (1-r)**(1.5+np.random.random()*4)*(np.random.random()-0.5)*32
-            XX = xx*np.cos(twist)+yy*np.sin(twist)
-            YY = yy*np.cos(twist)-xx*np.sin(twist)
-            dlef = np.sqrt((XX+1)**2 + YY**2)
-            drig = np.sqrt((XX-1)**2 + YY**2)
-            dtop = np.sqrt(XX**2 + (YY+1)**2)
-            dbot = np.sqrt(XX**2 + (YY-1)**2)
-            apow=4
-            square = (np.tensordot(dlef**apow*dtop**apow*dbot**apow,crig,0)
-                      + np.tensordot(drig**apow*dtop**apow*dbot**apow,clef,0)
-                      + np.tensordot(dbot**apow*dlef**apow*drig**apow,ctop,0)
-                      + np.tensordot(dtop**apow*dlef**apow*drig**apow,cbot,0))/(
-                          np.tensordot(drig**apow*dlef**apow*dtop**apow
-                                       +dlef**apow*drig**apow*dbot**apow
-                                       +dtop**apow*dbot**apow*dlef**apow
-                                       +dbot**apow*dtop**apow*drig**apow, [1,1,1], 0)
-                      )
+            square = scalar_to_rgb(weights[0,0]*scalars[iy  , ix  ] +
+                                   weights[1,0]*scalars[iy+1, ix  ] +
+                                   weights[0,1]*scalars[iy  , ix+1] +
+                                   weights[1,1]*scalars[iy+1, ix+1])
             offy = iy*w+22-w
             offx = ix*w+22-w
             img[max(0,offy):offy+w, max(0,offx):offx+w,:] = square[max(0,-offy):max(0,min(w,size[0]-offy)),
                                                                    max(0,-offx):max(0,min(w,size[1]-offx)),
                                                                    :]
 
-    rgb = lab_to_rgb(img)
+    # rgb = lab_to_rgb(img)
+    rgb = img
     rgb[rgb<0] = 0
     rgb[rgb>1] = 1
-    # plt.imshow(rgb)
-    if i < 10:
-        name = 'card-{}[face].png'.format(i)
-    else:
-        name = 'card-{}[back].png'.format(i-10)
-    print('saving', name)
-    imageio.imwrite(name, rgb)
-
+    imageio.imwrite('card-{}[face].png'.format(i), rgb)
+    imageio.imwrite('card-{}[back].png'.format(i), rgb[:,::-1,:])
+#     plt.imshow(img)
 # plt.show()
