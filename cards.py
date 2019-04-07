@@ -54,10 +54,18 @@ YY = 1-Y
 R = np.sqrt(X**2+Y**2)
 phi = np.arctan2(Y,X)
 phi[Y>X] = np.arctan2(X,Y)[Y>X]
+middle = (X*Y)**0.5
 wtl = 1 - R
-wtl = (XX*YY)**2
+wtl = (XX*YY)**1.6
+a=4
+wtl = XX*YY**a/(YY**a + Y**a + XX**a + X**a) + YY*XX**a/(YY**a + Y**a + XX**a + X**a)
+# wtl = XX*YY + YY*X # middle*(XX*YY)**2 + (1-middle)*(1-R)
 
-wtl[wtl<0] = 0
+# plt.pcolor(middle)
+# plt.colorbar()
+# plt.figure()
+
+# wtl[wtl<0] = 0
 wtr = 1*wtl[:,::-1]
 wbl = 1*wtl[::-1,:]
 wbr = 1*wtl[::-1,::-1]
@@ -66,12 +74,12 @@ wbr = 1*wtl[::-1,::-1]
 # plt.colorbar()
 # plt.figure()
 
-norm = wtl + wtr + wbl + wbr
-print('big norm', norm[norm>1])
-wtl /= norm
-wtr /= norm
-wbl /= norm
-wbr /= norm
+# norm = wtl + wtr + wbl + wbr
+# print('big norm', norm[norm>1])
+# wtl /= norm
+# wtr /= norm
+# wbl /= norm
+# wbr /= norm
 # wtl[norm>1] /= norm[norm>1]
 # wtr[norm>1] /= norm[norm>1]
 # wbl[norm>1] /= norm[norm>1]
@@ -105,6 +113,8 @@ def bad_corners(s):
                     mn = x
             if mn != 0:
                 return True
+            if mx == 0:
+                return True # reject squares of solid color
             for x in range(mx):
                 if corners[x] > corners[x+1]:
                     return True
@@ -113,17 +123,25 @@ def bad_corners(s):
                     return True
     return False # no bad corners
 
+choices = np.linspace(0,1,5)
+choices = np.append(choices, 0)
+choices = np.append(choices, 1)
 for i in range(20):
-    num_corner_kinds = 5
-    scalars = np.random.choice(np.linspace(0,1,num_corner_kinds), (ny+2,nx+2))
+    scalars = np.random.choice(choices, (ny+2,nx+2))
     while bad_corners(scalars):
-        scalars = np.random.choice(np.linspace(0,1,num_corner_kinds), (ny+2,nx+2))
+        scalars = np.random.choice(choices, (ny+2,nx+2))
     for ix in range(nx+1):
         for iy in range(ny+1):
             square = scalar_to_rgb(weights[0,0]*scalars[iy  , ix  ] +
                                    weights[1,0]*scalars[iy+1, ix  ] +
                                    weights[0,1]*scalars[iy  , ix+1] +
                                    weights[1,1]*scalars[iy+1, ix+1])
+            if scalars[iy,ix] == scalars[iy+1,ix] and scalars[iy,ix+1] == scalars[iy+1,ix+1]:
+                for jj in range(square.shape[0]):
+                    square[jj,:] = square[0,:]
+            if scalars[iy,ix] == scalars[iy,ix+1] and scalars[iy+1,ix] == scalars[iy+1,ix+1]:
+                for jj in range(square.shape[1]):
+                    square[:,jj] = square[:,0]
             offy = iy*w+22-w
             offx = ix*w+22-w
             img[max(0,offy):offy+w, max(0,offx):offx+w,:] = square[max(0,-offy):max(0,min(w,size[0]-offy)),
