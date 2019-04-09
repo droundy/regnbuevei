@@ -7,6 +7,8 @@ from scipy import misc
 import imageio
 import random, os, colour
 
+np.random.seed(0)
+
 size = (1575,975)
 
 img = np.zeros((size[0],size[1],3))
@@ -35,8 +37,6 @@ spectrum = np.array([[0,0,0],
                      [0,0,0],
 ])
 spec_coords = np.array([0,0.1,0.3,0.4,0.5,0.7, 0.8, 0.9, 1])
-print(np.linspace(0.1,0.9,len(spectrum)-2))
-print(len(spectrum), len(spec_coords))
 
 def scalar_to_rgb(z):
     l = np.interp(z, spec_coords, spectrum[:,0])
@@ -130,18 +130,69 @@ for i in range(20):
     scalars = np.random.choice(choices, (ny+2,nx+2))
     while bad_corners(scalars):
         scalars = np.random.choice(choices, (ny+2,nx+2))
+    if i == 0:
+        scalars[1,1] = 0
+        scalars[2,1] = 0
+        scalars[1,2] = 0.3
+        scalars[2,2] = 0.4
+        scalars[1,3] = 0
+        scalars[2,3] = 1
+
+        scalars[3,1] = 0
+        scalars[4,1] = 0
+        scalars[3,2] = 0.5
+        scalars[4,2] = 0
+        scalars[3,3] = 1
+        scalars[4,3] = 1
+    if i == 1:
+        scalars[:,1] = 0
+        scalars[:,2] = 1
+        scalars[:,3] = 0
+        scalars[4,:] = 0
+    if i == 2:
+        scalars[1,:] = 0
+        scalars[3,:] = 1
     for ix in range(nx+1):
         for iy in range(ny+1):
-            square = scalar_to_rgb(weights[0,0]*scalars[iy  , ix  ] +
-                                   weights[1,0]*scalars[iy+1, ix  ] +
-                                   weights[0,1]*scalars[iy  , ix+1] +
-                                   weights[1,1]*scalars[iy+1, ix+1])
-            if scalars[iy,ix] == scalars[iy+1,ix] and scalars[iy,ix+1] == scalars[iy+1,ix+1]:
-                for jj in range(square.shape[0]):
-                    square[jj,:] = square[0,:]
-            if scalars[iy,ix] == scalars[iy,ix+1] and scalars[iy+1,ix] == scalars[iy+1,ix+1]:
-                for jj in range(square.shape[1]):
-                    square[:,jj] = square[:,0]
+            ww = weights*1
+            sc = scalars[iy:iy+2, ix:ix+2]
+            goodrow = ww[0,0][:,0]*1
+            for iii in range(4):
+                if sc[0,0] == sc[1,0]:
+                    for jj in range(w):
+                        row = ww[0,0][:,jj] + ww[1,0][:,jj]
+                        extra = row - row[0]
+                        norm = ww[1,1][:,jj] + ww[0,1][:,jj]
+                        norm[norm==0] = 3
+                        extra1 = extra*ww[1,1][:,jj]/norm
+                        extra1[norm==3] = 0
+                        ww[1,1][1:-1,jj] += extra1[1:-1]
+                        ww[0,1][1:-1,jj] += (extra - extra1)[1:-1]
+                        ww[0,0][1:-1,jj] = row[0]
+                        ww[1,0][1:-1,jj] = row[0]
+                    ww[0,0] *= YY
+                    ww[1,0] *= Y
+                sc = np.rot90(sc)
+                ww = np.rot90(ww)
+                for xxx in [0,1]:
+                    for yyy in [0,1]:
+                        ww[yyy,xxx] = np.rot90(ww[yyy,xxx])
+            for iii in range(4):
+                if sc[1,1] == sc[1,0] and sc[1,1] == sc[0,1]:
+                    ww[0,0] = np.interp(R, np.linspace(0,1,w), goodrow)
+                    ww[0,0][ww[0,0]<0] = 0
+                    ww[1,0] = (1 - ww[0,0])/3
+                    ww[1,1] = (1 - ww[0,0])/3
+                    ww[0,1] = (1 - ww[0,0])/3
+                sc = np.rot90(sc)
+                ww = np.rot90(ww)
+                for xxx in [0,1]:
+                    for yyy in [0,1]:
+                        ww[yyy,xxx] = np.rot90(ww[yyy,xxx])
+            square = scalar_to_rgb(ww[0,0]*sc[0,0] +
+                                   ww[1,0]*sc[1,0] +
+                                   ww[0,1]*sc[0,1] +
+                                   ww[1,1]*sc[1,1])
             offy = iy*w+22-w
             offx = ix*w+22-w
             img[max(0,offy):offy+w, max(0,offx):offx+w,:] = square[max(0,-offy):max(0,min(w,size[0]-offy)),
@@ -152,7 +203,9 @@ for i in range(20):
     rgb = img
     rgb[rgb<0] = 0
     rgb[rgb>1] = 1
+    rgb = (rgb*255).astype(np.uint8)
     imageio.imwrite('card-{}[face].png'.format(i), rgb)
     imageio.imwrite('card-{}[back].png'.format(i), rgb[:,::-1,:])
+    print('saved as', 'card-{}[face].png'.format(i))
 #     plt.imshow(img)
 # plt.show()
