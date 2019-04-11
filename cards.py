@@ -161,6 +161,7 @@ for i in range(4):
         good_scalars.append(choose2([[j, k],
                                      [i, i],
                                      [l, m]]))
+good_scalars = good_scalars*2
 
 for i in range(20):
     scalars = np.random.choice(choices, (ny+2,nx+2))
