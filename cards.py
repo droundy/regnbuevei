@@ -15,7 +15,8 @@ img = np.zeros((size[0],size[1],3))
 
 x, y = np.meshgrid(np.linspace(0,1,size[1]), np.linspace(0,1,size[0]))
 
-w = int(size[1]/2 - 22)
+margin = 0 # 22
+w = int(size[1]/2 - margin)
 
 img[:,:,0] = x*y
 img[:,:,1] = x*(1-y)
@@ -123,35 +124,51 @@ def bad_corners(s):
                     return True
     return False # no bad corners
 
-choices = np.linspace(0,1,5)
+choices = np.linspace(0,1,4)
 choices = np.append(choices, 0)
 choices = np.append(choices, 1)
+def choose(x):
+    x = [[choices[elem % 4] for elem in y] for y in x]
+    return np.array(x).T
+def choose2(x):
+    x = np.array(x)
+    return choose([[1  ,   1  , 1  , 1  , 1  ,   1  ],
+
+                   [1, x[0,0], x[0,1], x[0,0], x[0,1], 1],
+                   [1, x[1,0], x[1,1], x[1,0], x[1,1], 1],
+                   [1, x[2,0], x[2,1], x[2,0], x[2,1], 1],
+
+                   [1  ,   1  , 1  , 1  , 1  ,   1  ],
+    ])
+
+good_scalars = []
+good_scalars.append(choose2([[1, 2],
+                             [4, 3],
+                             [2, 1]]))
+good_scalars.append(choose2([[3, 2],
+                             [2, 1],
+                             [4, 2]]))
+good_scalars.append(choose2([[1, 3],
+                             [3, 4],
+                             [2, 3]]))
+for i in range(4):
+    pairs = [(j,k) for j in range(4) for k in range(j+1,4)]
+    print(pairs)
+    while len(pairs) > 1:
+        j,k = pairs.pop()
+        l,m = pairs.pop()
+        print(j,k,l,m)
+        good_scalars.append(choose2([[j, k],
+                                     [i, i],
+                                     [l, m]]))
+
 for i in range(20):
     scalars = np.random.choice(choices, (ny+2,nx+2))
     while bad_corners(scalars):
         scalars = np.random.choice(choices, (ny+2,nx+2))
-    if i == 0:
-        scalars[1,1] = 0
-        scalars[2,1] = 0
-        scalars[1,2] = 0.3
-        scalars[2,2] = 0.4
-        scalars[1,3] = 0
-        scalars[2,3] = 1
-
-        scalars[3,1] = 0
-        scalars[4,1] = 0
-        scalars[3,2] = 0.5
-        scalars[4,2] = 0
-        scalars[3,3] = 1
-        scalars[4,3] = 1
-    if i == 1:
-        scalars[:,1] = 0
-        scalars[:,2] = 1
-        scalars[:,3] = 0
-        scalars[4,:] = 0
-    if i == 2:
-        scalars[1,:] = 0
-        scalars[3,:] = 1
+    if i < len(good_scalars):
+        scalars = good_scalars[i]*1
+    print(scalars[1:5, 1:5])
     for ix in range(nx+1):
         for iy in range(ny+1):
             ww = weights*1
@@ -193,8 +210,8 @@ for i in range(20):
                                    ww[1,0]*sc[1,0] +
                                    ww[0,1]*sc[0,1] +
                                    ww[1,1]*sc[1,1])
-            offy = iy*w+22-w
-            offx = ix*w+22-w
+            offy = iy*w+margin-w
+            offx = ix*w+margin-w
             img[max(0,offy):offy+w, max(0,offx):offx+w,:] = square[max(0,-offy):max(0,min(w,size[0]-offy)),
                                                                    max(0,-offx):max(0,min(w,size[1]-offx)),
                                                                    :]
