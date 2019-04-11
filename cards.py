@@ -22,18 +22,20 @@ img[:,:,0] = x*y
 img[:,:,1] = x*(1-y)
 img[:,:,2] = (1-x)*y
 
-spectrum = np.array([[0,0,0],
-                     [0.4,0,0.4],
-                     [0,0,1],
-                     [0,0.5,1],
-                     [0,1,0],
-                     [1,1,0],
-                     [0.975,0.451,0.023],
-                     [1,0,0],
-                     [0,0,0],
-])
-spec_coords = np.array([0,0.1,0.3,0.4,0.5,0.7, 0.8, 0.9, 1])
-
+specs = [
+    (0.00, [0.000, 0.000, 0.000]),
+    (0.10, [0.400, 0.000, 0.400]),
+    (0.30, [0.000, 0.000, 1.000]),
+    (0.40, [0.000, 0.800, 0.800]),
+    (0.50, [0.000, 0.900, 0.000]),
+    (0.60, [0.600, 1.000, 0.000]),
+    (0.70, [1.000, 1.000, 0.000]),
+    (0.80, [1.000, 0.451, 0.023]),
+    (0.90, [1.000, 0.000, 0.000]),
+    (1.00, [0.000, 0.000, 0.000]),
+]
+spectrum = np.array(list([x[1] for x in specs]))
+spec_coords = np.array(list([x[0] for x in specs]))
 def scalar_to_rgb(z):
     l = np.interp(z, spec_coords, spectrum[:,0])
     a = np.interp(z, spec_coords, spectrum[:,1])
@@ -137,6 +139,12 @@ def choose2(x):
     ])
 
 good_scalars = []
+good_scalars.append(choose2([[0, 3],
+                             [3, 0],
+                             [0, 3]]))
+good_scalars.append(choose2([[0, 2],
+                             [3, 1],
+                             [0, 2]]))
 good_scalars.append(choose2([[1, 2],
                              [4, 3],
                              [2, 1]]))
@@ -148,15 +156,23 @@ good_scalars.append(choose2([[1, 3],
                              [2, 3]]))
 for i in range(4):
     pairs = [(j,k) for j in range(4) for k in range(j+1,4)]
-    print(pairs)
     while len(pairs) > 1:
         j,k = pairs.pop()
         l,m = pairs.pop()
-        print(j,k,l,m)
         good_scalars.append(choose2([[j, k],
                                      [i, i],
                                      [l, m]]))
+good_scalars.append(choose2([[1, 1],
+                             [2, 2],
+                             [3, 3]]))
+good_scalars.append(choose2([[4, 4],
+                             [3, 3],
+                             [1, 1]]))
+good_scalars.append(choose2([[2, 2],
+                             [4, 4],
+                             [1, 1]]))
 
+print(len(good_scalars), 'slugs')
 for i in range(len(good_scalars)):
     scalars = good_scalars[i]
     print(scalars[1:5, 1:5])
