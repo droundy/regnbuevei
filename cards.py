@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import misc
 import imageio
-import random, os, colour
+import random, os
 
 np.random.seed(0)
 
@@ -21,11 +21,6 @@ w = int(size[1]/2 - margin)
 img[:,:,0] = x*y
 img[:,:,1] = x*(1-y)
 img[:,:,2] = (1-x)*y
-
-def rgb_to_lab(x):
-    return colour.XYZ_to_Lab(colour.sRGB_to_XYZ(x))
-def lab_to_rgb(x):
-    return colour.XYZ_to_sRGB(colour.Lab_to_XYZ(x))
 
 spectrum = np.array([[0,0,0],
                      [0.4,0,0.4],
@@ -161,14 +156,9 @@ for i in range(4):
         good_scalars.append(choose2([[j, k],
                                      [i, i],
                                      [l, m]]))
-good_scalars = good_scalars*2
 
-for i in range(20):
-    scalars = np.random.choice(choices, (ny+2,nx+2))
-    while bad_corners(scalars):
-        scalars = np.random.choice(choices, (ny+2,nx+2))
-    if i < len(good_scalars):
-        scalars = good_scalars[i]*1
+for i in range(len(good_scalars)):
+    scalars = good_scalars[i]
     print(scalars[1:5, 1:5])
     for ix in range(nx+1):
         for iy in range(ny+1):
