@@ -139,21 +139,27 @@ def choose2(x):
     ])
 
 good_scalars = []
-good_scalars.append(choose2([[0, 3],
-                             [3, 0],
-                             [0, 3]]))
+# good_scalars.append(choose2([[0, 3],
+#                              [3, 0],
+#                              [0, 3]]))
+# good_scalars.append(choose2([[0, 2],
+#                              [3, 1],
+#                              [0, 2]]))
+good_scalars.append(choose2([[0, 1],
+                             [3, 2],
+                             [1, 0]]))
+good_scalars.append(choose2([[2, 1],
+                             [1, 0],
+                             [3, 1]]))
 good_scalars.append(choose2([[0, 2],
-                             [3, 1],
-                             [0, 2]]))
-good_scalars.append(choose2([[1, 2],
-                             [4, 3],
-                             [2, 1]]))
-good_scalars.append(choose2([[3, 2],
-                             [2, 1],
-                             [4, 2]]))
-good_scalars.append(choose2([[1, 3],
-                             [3, 4],
-                             [2, 3]]))
+                             [2, 3],
+                             [1, 2]]))
+good_scalars.append(choose2([[2, 1],
+                             [1, 0],
+                             [3, 1]]))
+good_scalars.append(choose2([[0, 2],
+                             [2, 3],
+                             [1, 2]]))
 for i in range(4):
     pairs = [(j,k) for j in range(4) for k in range(j+1,4)]
     while len(pairs) > 1:
@@ -175,7 +181,7 @@ good_scalars.append(choose2([[2, 2],
 print(len(good_scalars), 'slugs')
 for i in range(len(good_scalars)):
     scalars = good_scalars[i]
-    print(scalars[1:5, 1:5])
+    print(scalars[1:5, 1:4])
     for ix in range(nx+1):
         for iy in range(ny+1):
             ww = weights*1
@@ -217,6 +223,12 @@ for i in range(len(good_scalars)):
                                    ww[1,0]*sc[1,0] +
                                    ww[0,1]*sc[0,1] +
                                    ww[1,1]*sc[1,1])
+            if iy == 1 and 0 < ix < 3:
+                s = square
+                s[s<0] = 0
+                s[s>1] = 0
+                s = (s*255).astype(np.uint8)
+                imageio.imwrite('square-{}.png'.format(i*2+ix), s)
             offy = iy*w+margin-w
             offx = ix*w+margin-w
             img[max(0,offy):offy+w, max(0,offx):offx+w,:] = square[max(0,-offy):max(0,min(w,size[0]-offy)),

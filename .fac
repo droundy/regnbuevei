@@ -1,1 +1,5 @@
 | python3 cards.py
+
+| inkscape -w 3450 -h 2700 --export-png box[top].png box-top.svg
+
+| inkscape -w 3450 -h 2700 --export-png box[bottom].png box-bottom.svg
