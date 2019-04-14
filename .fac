@@ -1,5 +1,15 @@
 | python3 cards.py
 
+| python3 backdrop.py
+
+| python3 logo.py
+
+| python3 ad.py
+
+| inkscape -D -w 350 -h 150 --export-png logo.png logo.svg
+
+| inkscape -D -w 216 -h 150 --export-png ad.png ad.svg
+
 | inkscape -w 3450 -h 2700 --export-png box[top].png box-top.svg
 
 | inkscape -w 3450 -h 2700 --export-png box[bottom].png box-bottom.svg
