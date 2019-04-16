@@ -13,3 +13,7 @@
 | inkscape -w 3450 -h 2700 --export-png box[top].png box-top.svg
 
 | inkscape -w 3450 -h 2700 --export-png box[bottom].png box-bottom.svg
+
+| inkscape --export-pdf rules-1.pdf rules.svg
+
+| libreoffice --headless --convert-to pdf rules.odt
