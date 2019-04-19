@@ -17,3 +17,13 @@
 | inkscape --export-pdf rules-1.pdf rules.svg
 
 | libreoffice --headless --convert-to pdf rules.odt
+
+| xelatex better-rules.tex && xelatex better-rules.tex
+
+| inkscape -D --export-pdf draw-piles.pdf draw-piles.svg
+
+| inkscape -D --export-pdf play-example.pdf play-example.svg
+
+| inkscape -D --export-pdf scoring-loop.pdf scoring-loop.svg
+
+| inkscape -D --export-pdf scoring-longest.pdf scoring-longest.svg
