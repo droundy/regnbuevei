@@ -4,6 +4,8 @@
 
 | python3 logo.py
 
+| python3 background.py
+
 | python3 ad.py
 
 | inkscape -D -w 350 -h 150 --export-png logo.png logo.svg
