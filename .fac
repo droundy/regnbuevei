@@ -25,3 +25,11 @@
 | inkscape -D --export-pdf scoring-loop.pdf scoring-loop.svg
 
 | inkscape -D --export-pdf scoring-longest.pdf scoring-longest.svg
+
+| inkscape -D -w 800 --export-png draw-piles.png draw-piles.svg
+
+| inkscape -D -w 800 --export-png play-example.png play-example.svg
+
+| inkscape -D -w 800 --export-png scoring-loop.png scoring-loop.svg
+
+| inkscape -D -w 800 --export-png scoring-longest.png scoring-longest.svg
