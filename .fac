@@ -16,11 +16,7 @@
 
 | inkscape -w 3450 -h 2700 --export-png box[bottom].png box-bottom.svg
 
-| inkscape --export-pdf rules-1.pdf rules.svg
-
-| libreoffice --headless --convert-to pdf rules.odt
-
-| xelatex better-rules.tex && xelatex better-rules.tex
+| xelatex rules.tex && xelatex rules.tex
 
 | inkscape -D --export-pdf draw-piles.pdf draw-piles.svg
 

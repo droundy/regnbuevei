@@ -82,6 +82,9 @@ scalars[:,-1] = choices[3]
 # scalars[1,:] = 1
 # scalars[2,:] = 2
 scalars[-1,:] = choices[3]
+
+page2_scalars = scalars*1
+
 scalars[0:6,:19] = choices[3]
 scalars[1:6,18] = choices[1]
 scalars[1:6,17] = choices[2]
@@ -110,58 +113,62 @@ scalars[4:10,2] = choices[0]
 #     [0  ,   0  , 3  , 3  , 3  , 3  ,   0  ],
 #     [0  ,   0  , 3  , 3  , 3  , 3  ,   0  ],
 # ])
-for ix in range(nx+1):
-    for iy in range(ny+1):
-        ww = weights*1
-        sc = scalars[iy:iy+2, ix:ix+2]
-        goodrow = ww[0,0][:,0]*1
-        for iii in range(4):
-            if sc[0,0] == sc[1,0]:
-                for jj in range(w):
-                    row = ww[0,0][:,jj] + ww[1,0][:,jj]
-                    extra = row - row[0]
-                    norm = ww[1,1][:,jj] + ww[0,1][:,jj]
-                    norm[norm==0] = 3
-                    extra1 = extra*ww[1,1][:,jj]/norm
-                    extra1[norm==3] = 0
-                    ww[1,1][1:-1,jj] += extra1[1:-1]
-                    ww[0,1][1:-1,jj] += (extra - extra1)[1:-1]
-                    ww[0,0][1:-1,jj] = row[0]
-                    ww[1,0][1:-1,jj] = row[0]
-                ww[0,0] *= YY
-                ww[1,0] *= Y
-            sc = np.rot90(sc)
-            ww = np.rot90(ww)
-            for xxx in [0,1]:
-                for yyy in [0,1]:
-                    ww[yyy,xxx] = np.rot90(ww[yyy,xxx])
-        for iii in range(4):
-            if sc[1,1] == sc[1,0] and sc[1,1] == sc[0,1]:
-                ww[0,0] = np.interp(R, np.linspace(0,1,w), goodrow)
-                ww[0,0][ww[0,0]<0] = 0
-                ww[1,0] = (1 - ww[0,0])/3
-                ww[1,1] = (1 - ww[0,0])/3
-                ww[0,1] = (1 - ww[0,0])/3
-            sc = np.rot90(sc)
-            ww = np.rot90(ww)
-            for xxx in [0,1]:
-                for yyy in [0,1]:
-                    ww[yyy,xxx] = np.rot90(ww[yyy,xxx])
-        square = scalar_to_rgb(ww[0,0]*sc[0,0] +
-                               ww[1,0]*sc[1,0] +
-                               ww[0,1]*sc[0,1] +
-                               ww[1,1]*sc[1,1])
-        offy = iy*w + (img.shape[0]%w)
-        offx = ix*w + (img.shape[1]%w)
-        img[max(0,offy):offy+w, max(0,offx):offx+w,:] = square[max(0,-offy):max(0,min(w,size[0]-offy)),
+for scalars in [scalars, page2_scalars]:
+    for ix in range(nx+1):
+        for iy in range(ny+1):
+            ww = weights*1
+            sc = scalars[iy:iy+2, ix:ix+2]
+            goodrow = ww[0,0][:,0]*1
+            for iii in range(4):
+                if sc[0,0] == sc[1,0]:
+                    for jj in range(w):
+                        row = ww[0,0][:,jj] + ww[1,0][:,jj]
+                        extra = row - row[0]
+                        norm = ww[1,1][:,jj] + ww[0,1][:,jj]
+                        norm[norm==0] = 3
+                        extra1 = extra*ww[1,1][:,jj]/norm
+                        extra1[norm==3] = 0
+                        ww[1,1][1:-1,jj] += extra1[1:-1]
+                        ww[0,1][1:-1,jj] += (extra - extra1)[1:-1]
+                        ww[0,0][1:-1,jj] = row[0]
+                        ww[1,0][1:-1,jj] = row[0]
+                    ww[0,0] *= YY
+                    ww[1,0] *= Y
+                sc = np.rot90(sc)
+                ww = np.rot90(ww)
+                for xxx in [0,1]:
+                    for yyy in [0,1]:
+                        ww[yyy,xxx] = np.rot90(ww[yyy,xxx])
+            for iii in range(4):
+                if sc[1,1] == sc[1,0] and sc[1,1] == sc[0,1]:
+                    ww[0,0] = np.interp(R, np.linspace(0,1,w), goodrow)
+                    ww[0,0][ww[0,0]<0] = 0
+                    ww[1,0] = (1 - ww[0,0])/3
+                    ww[1,1] = (1 - ww[0,0])/3
+                    ww[0,1] = (1 - ww[0,0])/3
+                sc = np.rot90(sc)
+                ww = np.rot90(ww)
+                for xxx in [0,1]:
+                    for yyy in [0,1]:
+                        ww[yyy,xxx] = np.rot90(ww[yyy,xxx])
+            square = scalar_to_rgb(ww[0,0]*sc[0,0] +
+                                   ww[1,0]*sc[1,0] +
+                                   ww[0,1]*sc[0,1] +
+                                   ww[1,1]*sc[1,1])
+            offy = iy*w + (img.shape[0]%w)
+            offx = ix*w + (img.shape[1]%w)
+            img[max(0,offy):offy+w, max(0,offx):offx+w,:] = square[max(0,-offy):max(0,min(w,size[0]-offy)),
                                                                max(0,-offx):max(0,min(w,size[1]-offx)),
                                                                    :]
 
-# rgb = lab_to_rgb(img)
-rgb = img
-rgb[rgb<0] = 0
-rgb[rgb>1] = 1
-rgb = (rgb*255).astype(np.uint8)
-imageio.imwrite('background.png', rgb)
+    # rgb = lab_to_rgb(img)
+    rgb = img
+    rgb[rgb<0] = 0
+    rgb[rgb>1] = 1
+    rgb = (rgb*255).astype(np.uint8)
+    if (scalars == page2_scalars).all():
+        imageio.imwrite('background.png', rgb)
+    else:
+        imageio.imwrite('title-background.png', rgb)
 # plt.imshow(img)
 # plt.show()
