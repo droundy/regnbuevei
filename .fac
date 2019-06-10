@@ -18,6 +18,10 @@
 
 | inkscape -w 3450 -h 2700 --export-png box[bottom].png box-bottom.svg
 
+| inkscape -w 3450 -h 2700 --export-png three-color[top].png three-color-top.svg
+
+| inkscape -w 3450 -h 2700 --export-png three-color[bottom].png three-color-bottom.svg
+
 | xelatex rules.tex && xelatex rules.tex
 
 | inkscape -D --export-pdf draw-piles.pdf draw-piles.svg
