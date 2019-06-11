@@ -1,0 +1,25 @@
+| python3 backdrop.py
+
+| python3 logo.py
+
+| python3 background.py
+
+| python3 ad.py
+
+| inkscape -D -w 350 -h 150 --export-png logo.png logo.svg
+
+| inkscape -D --export-pdf draw-piles.pdf draw-piles.svg
+
+| inkscape -D --export-pdf play-example.pdf play-example.svg
+
+| inkscape -D --export-pdf scoring-loop.pdf scoring-loop.svg
+
+| inkscape -D --export-pdf scoring-longest.pdf scoring-longest.svg
+
+| inkscape -D -w 800 --export-png draw-piles.png draw-piles.svg
+
+| inkscape -D -w 800 --export-png play-example.png play-example.svg
+
+| inkscape -D -w 800 --export-png scoring-loop.png scoring-loop.svg
+
+| inkscape -D -w 800 --export-png scoring-longest.png scoring-longest.svg
