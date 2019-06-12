@@ -69,25 +69,25 @@ wbr = 1*wtl[::-1,::-1]
 
 weights = np.array([[wtl, wtr], [wbl, wbr]])
 
-choices = np.linspace(0,1,4)
+choices = np.linspace(0,1,3)
 choices = np.append(choices, 0)
 choices = np.append(choices, 1)
 
 scalars = np.zeros((ny+2, nx+2))
 scalars[:,:] = choices[0]
 
-scalars[0,:] = choices[3]
-scalars[:,0] = choices[3]
-scalars[:,-1] = choices[3]
+scalars[0,:] = choices[2]
+scalars[:,0] = choices[2]
+scalars[:,-1] = choices[2]
 # scalars[1,:] = 1
 # scalars[2,:] = 2
-scalars[-1,:] = choices[3]
+scalars[-1,:] = choices[2]
 
 page2_scalars = scalars*1
 
-scalars[0:6,:19] = choices[3]
+scalars[0:6,:19] = choices[2]
 scalars[1:6,18] = choices[1]
-scalars[1:6,17] = choices[2]
+# scalars[1:6,17] = choices[1]
 
 scalars[1:10,1] = choices[0]
 scalars[1:3,2] = choices[0]

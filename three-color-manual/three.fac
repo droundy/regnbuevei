@@ -23,3 +23,5 @@
 | inkscape -D -w 800 --export-png scoring-loop.png scoring-loop.svg
 
 | inkscape -D -w 800 --export-png scoring-longest.png scoring-longest.svg
+
+| xelatex rules.tex && xelatex rules.tex
