@@ -6,6 +6,8 @@
 
 | python3 ad.py
 
+| inkscape -D -w 216 -h 150 --export-png ad.png ad.svg
+
 | inkscape -D -w 350 -h 150 --export-png logo.png logo.svg
 
 | inkscape -D --export-pdf draw-piles.pdf draw-piles.svg

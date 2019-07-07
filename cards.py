@@ -15,7 +15,7 @@ img = np.zeros((size[0],size[1],3))
 
 x, y = np.meshgrid(np.linspace(0,1,size[1]), np.linspace(0,1,size[0]))
 
-margin = 22
+margin = 45
 w = int(size[1]/2 - margin)
 
 img[:,:,0] = x*y
